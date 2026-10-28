@@ -908,7 +908,7 @@
   #edit-filmstrip img.active{ border-color: var(--accent); opacity:1; }
   #edit-filmstrip-add{ flex-shrink:0; font-size:12px; padding:8px 12px; white-space:nowrap; }
 
-  .edit-controls-col{ flex:0 0 var(--edit-panel-w, clamp(340px, 24vw, 640px)); min-width:300px; max-width:75vw; padding:14px 18px; overflow-y:auto; display:flex; flex-direction:column; }
+  .edit-controls-col{ flex:0 0 var(--edit-panel-w, clamp(300px, 24vw, 640px)); min-width:220px; max-width:75vw; padding:14px 18px; overflow-y:auto; display:flex; flex-direction:column; }
   .edit-tabs{ display:flex; gap:1px; row-gap:2px; border-bottom:1px solid var(--line); margin-bottom:14px; flex-wrap:wrap; }
   .edit-tabs{ flex-wrap:nowrap !important; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
   .edit-tabs::-webkit-scrollbar{ display:none; }
@@ -1157,6 +1157,9 @@
   #rot-wrap{ position:relative; flex:1; min-width:78px; display:flex; }
   #flip-wrap > button{ flex:1; }
   #rot-wrap > button{ flex:1; }
+
+  .export-format-btn.hi-fake{ opacity:.55; }
+  .export-format-btn.hi-fake::after{ content:' — ⚠ source 8 bits'; font-size:11px; font-weight:600; }
   #flip-wrap{ display:none !important; }   /* vestige : flou, mosaïque et miroir sont dans « ⋯ » */
   #flip-menu{ display:none; position:absolute; bottom:calc(100% + 4px); left:0; min-width:100%; z-index:40; background:var(--surf); border:1px solid var(--line-strong); border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.2); padding:4px; flex-direction:column; gap:2px; }
   #rot-menu{ display:none; position:absolute; bottom:calc(100% + 4px); left:0; min-width:100%; z-index:40; background:var(--surf); border:1px solid var(--line-strong); border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.2); padding:4px; flex-direction:column; gap:2px; }
@@ -1609,6 +1612,39 @@ body.m-land-small #histo-panel, body.m-land-small #edit-filmstrip-wrap{ display:
   .lc-guide-dots{ flex:1; font-size:9px; letter-spacing:1px; color:var(--text-dim,#666); }
   .lc-guide-skip{ background:transparent !important; border:0 !important; color:var(--text-dim,#666); text-decoration:underline; cursor:pointer; padding:6px 4px; }
   .lc-guide-row .primary{ padding:7px 16px; }
+  /* ===== Fenêtre étroite / zoom du navigateur (Ctrl +) : tout reste sur une seule ligne ===== */
+  @media not all and (min-width:1500px) and (min-height:700px){
+  body:not(.m-compact) #edit-rate-bar{ flex-wrap:nowrap !important; overflow:hidden; }
+  body:not(.m-compact) #edit-rail-l{ display:flex !important; align-items:center; gap:4px; flex:none; min-width:0; }
+  body:not(.m-compact) #edit-rail-r{ display:flex !important; align-items:center; gap:4px; flex:1 1 0; min-width:0; }
+  body:not(.m-compact) #edit-icon-bar{ flex:1 1 0 !important; min-width:36px !important; flex-wrap:nowrap !important; }
+  }
+  @media (max-width:900px){ body:not(.m-compact) #edit-rate-dots, body:not(.m-compact) #edit-rail-l > .rl-sep:nth-of-type(2){ display:none; } }
+  @media (max-width:1500px){
+    body:not(.m-compact) #edit-rail-l > span:not([class]):not([id]){ display:none; }          /* libellé « Couleur » */
+    body:not(.m-compact) #edit-fsrate-btn{ font-size:0; padding:2px 5px; } body:not(.m-compact) #edit-fsrate-btn::before{ content:'★'; font-size:13px; }
+    body:not(.m-compact) #edit-filter-btn, body:not(.m-compact) #edit-tags-btn{ font-size:0; padding:3px 6px; }
+    body:not(.m-compact) #edit-filter-btn::first-letter, body:not(.m-compact) #edit-tags-btn::first-letter{ font-size:14px; }
+  }
+  @media (max-width:1250px){ body:not(.m-compact) #edit-rate-stars .star, body:not(.m-compact) #edit-rate-stars button{ transform:scale(.85); margin:0 -2px; } }
+  /* barre du haut */
+  @media (max-width:1180px){
+    #beginner-badge{ display:none !important; }
+    #app-title{ min-width:0 !important; font-size:0 !important; } #app-title::first-letter{ font-size:19px; }
+    #modebar{ gap:6px !important; }
+    #tabs button.mode-btn{ padding:6px 8px !important; font-size:12px !important; }
+  }
+  @media (max-width:1000px){
+    #modebar #autosave-pill{ font-size:0 !important; max-width:30px !important; padding:5px 8px !important; } #modebar #autosave-pill::before{ content:'●'; font-size:12px; color:#3fcf6a; } #modebar #autosave-pill.warn::before{ content:'⚠'; color:#ff6b5e; }
+    #modebar #options-btn, #modebar #about-btn{ font-size:0 !important; padding:4px 7px !important; } #modebar #options-btn::first-letter, #modebar #about-btn::first-letter{ font-size:14px; }
+    #modebar #options-btn .emo, #modebar #about-btn .emo{ font-size:14px; }
+    #tabs button.mode-btn{ padding:6px 6px !important; font-size:11.5px !important; }
+  }
+  @media (max-width:1000px){
+    #tabs{ flex:1 1 0 !important; min-width:0; overflow-x:auto; scrollbar-width:none; }
+    #tabs::-webkit-scrollbar{ display:none; }
+    #modebar .spacer{ display:none; }
+  }
 </style>
 </head>
 <body>
@@ -2055,6 +2091,7 @@ DSCF0383.JPG"></textarea>
       <button class="export-format-btn" data-pfmt="psdstack16" title="Chaque photo sélectionnée devient un calque, en 16 bits">PSD — photos sélectionnées en calques (16 bits)</button>
     </div>
 
+    <p id="pe-hi-warn" style="display:none;margin:6px 0 10px;padding:8px 10px;border-radius:8px;background:rgba(230,160,30,.18);border:1px solid rgba(230,160,30,.55);font-size:13px;"></p>
     <div id="pe-quality-wrap">
       <label class="pe-label">Qualité JPEG</label>
       <input type="range" id="pe-quality" min="60" max="100" value="92" style="width:100%;">
@@ -6973,6 +7010,76 @@ async function hiToPng16Blob(hi, exifPayload){
   else { const m2 = insertXmpIntoPng(png); if(m2) png = m2; }
   return new Blob([png], { type:'image/png' });
 }
+/* ===== Effets spatiaux en haute précision =====
+   Bruit, bruit de couleur, moiré et netteté sont calculés en flottant 32 bits, par bandes horizontales (avec une marge de recouvrement, pour ne pas
+   dépendre de la taille de l'image en mémoire) ; grain et vignettage sont appliqués pixel par pixel directement sur les valeurs 16 bits.
+   Plus aucun passage par 8 bits (qui créait des marches visibles dans les dégradés, surtout le vignettage). */
+const hiTick = ()=> new Promise(r=> setTimeout(r, 0));
+function hiClampF(f){ for(let i = 0; i < f.length; i++){ const v = f[i]; if(v < 0) f[i] = 0; else if(v > 255) f[i] = 255; } }
+async function hiBandFilter(hi, reach, fn){
+  const w = hi.w, h = hi.h, src = hi.data, out = new Uint16Array(src.length), rows = Math.max(64, Math.floor(3.5e6/w));
+  for(let y0 = 0; y0 < h; y0 += rows){
+    const y1 = Math.min(h, y0 + rows), a = Math.max(0, y0 - reach), b = Math.min(h, y1 + reach), bh = b - a, f = new Float32Array(w*bh*4);
+    for(let y = 0; y < bh; y++){ let o = (a + y)*w*3, j = y*w*4; for(let x = 0; x < w; x++, o += 3, j += 4){ f[j] = src[o]/257; f[j+1] = src[o+1]/257; f[j+2] = src[o+2]/257; f[j+3] = 255; } }
+    fn({ data:f, width:w, height:bh, refW:w, refH:h });
+    for(let y = y0; y < y1; y++){ let o = y*w*3, j = (y - a)*w*4; for(let x = 0; x < w; x++, o += 3, j += 4){ for(let c = 0; c < 3; c++){ const v = f[j + c]*257; out[o + c] = v < 0 ? 0 : v > 65535 ? 65535 : (v + .5) | 0; } } }
+    await hiTick();
+  }
+  hi.data = out;
+}
+function hiPreReach(rec, w){
+  let r = 2;
+  if(rec.noise > 0) r += 2;
+  if(rec.noiseColor > 0) r += Math.max(1, Math.round(1 + rec.noiseColor/100*5));
+  if(rec.moire > 0) r += Math.max(2, Math.round((2 + rec.moire/100*12)*Math.max(.5, Math.min(2.5, w/3000))));
+  return r;
+}
+async function hiSpatialPre(hi, rec){
+  if(!(rec.noise > 0 || rec.noiseColor > 0 || rec.moire > 0)) return;
+  await hiBandFilter(hi, hiPreReach(rec, hi.w), id=>{
+    if(rec.noise > 0){ applyNoiseReduction(id, rec.noise, rec.noiseDetail); hiClampF(id.data); }
+    if(rec.noiseColor > 0){ applyChromaNoiseReduction(id, rec.noiseColor); hiClampF(id.data); }
+    if(rec.moire > 0){ applyMoire(id, rec.moire); hiClampF(id.data); }
+  });
+}
+async function hiSpatialPost(hi, rec){
+  const w = hi.w, h = hi.h;
+  if(rec.sharpness){
+    const am = rec.sharpness/100, reach = am < 0 ? 2*Math.max(1, Math.round(-am*Math.min(w, h)/60)) + 2 : Math.max(1, Math.round(Math.min(w, h)/220)) + 2;
+    await hiBandFilter(hi, reach, id=>{ applySharpen(id, am); hiClampF(id.data); });
+  }
+  const grain = rec.grain > 0, vig = !!rec.vignette;
+  if(!grain && !vig) return;
+  const data = hi.data, strength = (rec.grain || 0)/100, cell = 3 + 9*Math.max(0, Math.min(100, rec.grainSize || 0))/100, rg = Math.max(0, Math.min(100, rec.grainRough || 0))/100;
+  const fineW = .65*(1 - .5*rg), coarseW = .75*(1 + rg), col = Math.max(0, Math.min(100, rec.grainColor || 0))/100;
+  const cw = Math.max(1, Math.ceil(w/cell)), ch = Math.max(1, Math.ceil(h/cell));
+  const mk = ()=>{ const a = new Float32Array(cw*ch); for(let i = 0; i < a.length; i++) a[i] = Math.random() - .5; return a; };
+  const cM = grain ? mk() : null, cR = grain && col > 0 ? mk() : null, cG = grain && col > 0 ? mk() : null, cB = grain && col > 0 ? mk() : null;
+  const at = (arr, x, y)=> arr[Math.min(ch - 1, Math.floor(y/cell))*cw + Math.min(cw - 1, Math.floor(x/cell))];
+  const cx = w/2, cy = h/2, maxDist = Math.sqrt(cx*cx + cy*cy), vamt = (rec.vignette || 0)/100;
+  for(let y = 0; y < h; y++){
+    for(let x = 0; x < w; x++){
+      const i = (y*w + x)*3; let r = data[i]/257, g = data[i+1]/257, b = data[i+2]/257;
+      if(grain){
+        const L = (.299*r + .587*g + .114*b)/255, prot = Math.max(.12, 1 - Math.max(0, (L - .7)/.3))*strength*34, mono = (Math.random() - .5)*fineW + at(cM, x, y)*coarseW;
+        if(col <= 0){ const v = mono*prot; r += v; g += v; b += v; }
+        else {
+          const nr = (Math.random() - .5)*fineW + at(cR, x, y)*coarseW, ng = (Math.random() - .5)*fineW + at(cG, x, y)*coarseW, nb = (Math.random() - .5)*fineW + at(cB, x, y)*coarseW;
+          r += (mono*(1 - col) + nr*col)*prot; g += (mono*(1 - col) + ng*col)*prot; b += (mono*(1 - col) + nb*col)*prot;
+        }
+        r = r < 0 ? 0 : r > 255 ? 255 : r; g = g < 0 ? 0 : g > 255 ? 255 : g; b = b < 0 ? 0 : b > 255 ? 255 : b;
+      }
+      if(vig){
+        const dx = x - cx, dy = y - cy, falloff = Math.max(0, Math.min(1, (Math.sqrt(dx*dx + dy*dy)/maxDist - .35)/.65)), f = 1 - vamt*.7*falloff;
+        r *= f; g *= f; b *= f;
+      }
+      let v = r*257; data[i] = v < 0 ? 0 : v > 65535 ? 65535 : (v + .5) | 0;
+      v = g*257; data[i+1] = v < 0 ? 0 : v > 65535 ? 65535 : (v + .5) | 0;
+      v = b*257; data[i+2] = v < 0 ? 0 : v > 65535 ? 65535 : (v + .5) | 0;
+    }
+    if(y % 64 === 63) await hiTick();
+  }
+}
 const HI_SPATIAL = ['sharpness', 'noise', 'noiseDetail', 'noiseColor', 'moire', 'grain', 'grainSize', 'grainRough', 'grainColor', 'vignette'];
 /* Renvoie null si le chemin haute précision ne s'applique pas (le pipeline 8 bits prend alors le relais).
    fmt : 'tiff16' | 'tiff32' | 'png16'. Accepte maintenant redressement, objectif, texte et cadre. */
@@ -6992,7 +7099,7 @@ async function tryExportHighBit(p, fmt){
   }
   const w = hi.w, h = hi.h, n = w*h, layered = fmt === 'psdlayers16';
   const hiOrig = layered ? hi.data.slice() : null;   // « Original » du PSD à calques (après géométrie, avant retouche)
-  const spatialRecipe = HI_SPATIAL.some(k=> editRecipe[k]) || (editRecipe.heals && editRecipe.heals.length) || (editRecipe.fx && editRecipe.fx.length) || (!layered && editRecipe.masks && editRecipe.masks.some(m=> m.enabled));
+  const spatialRecipe = (editRecipe.heals && editRecipe.heals.length) || (editRecipe.fx && editRecipe.fx.length) || (!layered && editRecipe.masks && editRecipe.masks.some(m=> m.enabled));   // correcteur, flou/mosaïque, masques locaux : encore calculés en 8 bits (écart ajouté)
   const rp = JSON.parse(JSON.stringify(editRecipe)); HI_SPATIAL.forEach(k=> rp[k] = 0); rp.heals = []; rp.fx = []; rp.masks = []; rp.geometry = neutralGeometry();
   const neutral = recipeIsNeutral(editRecipe);
   if(!neutral){
@@ -7003,12 +7110,15 @@ async function tryExportHighBit(p, fmt){
       for(let i = 0, j = 0; i < n; i++, j += 4){ sd[j] = (hi.data[i*3] + 128) >> 8; sd[j+1] = (hi.data[i*3+1] + 128) >> 8; sd[j+2] = (hi.data[i*3+2] + 128) >> 8; sd[j+3] = 255; }
       const full = new ImageData(new Uint8ClampedArray(sd), w, h), part = new ImageData(new Uint8ClampedArray(sd), w, h);
       await tick();
-      processImageDataWithRecipe(full, Object.assign({}, editRecipe, layered ? { geometry:neutralGeometry(), masks:[] } : { geometry:neutralGeometry() }), null);
+      const fullRec = Object.assign({}, editRecipe, layered ? { geometry:neutralGeometry(), masks:[] } : { geometry:neutralGeometry() }); HI_SPATIAL.forEach(k=> fullRec[k] = 0);   // bruit, netteté, grain… : traités à part, en haute précision
+      processImageDataWithRecipe(full, fullRec, null);
       processImageDataWithRecipe(part, rp, null);
       delta = new Int16Array(n*3);
       for(let i = 0, j = 0; i < n; i++, j += 4){ delta[i*3] = full.data[j] - part.data[j]; delta[i*3+1] = full.data[j+1] - part.data[j+1]; delta[i*3+2] = full.data[j+2] - part.data[j+2]; }
     }
+    if(editRecipe.noise > 0 || editRecipe.noiseColor > 0 || editRecipe.moire > 0){ toast('Bruit et moiré en haute précision…'); await tick(); await hiSpatialPre(hi, editRecipe); }
     await hiApplyLut(hi.data, w, h, lut, delta);
+    if(editRecipe.sharpness || editRecipe.grain > 0 || editRecipe.vignette){ toast('Netteté, grain et vignettage en haute précision…'); await tick(); await hiSpatialPost(hi, editRecipe); }
   }
   let ow = w, oh = h, od = hi.data;
   { const sel = el('#pe-size').value, L = sel === 'custom' ? parseInt(el('#pe-size-custom').value, 10) : parseInt(sel, 10);
@@ -11157,8 +11267,8 @@ function boxBlurSeparable(src, w, h, radius){
    l'effet reste visible même sur un aperçu réduit. */
 function applySoften(imageData, amount){   // flou gaussien (≈ 2 passes de flou de boîte) ; amount 0..1, rayon proportionnel à l'image
   const w = imageData.width, h = imageData.height, data = imageData.data;
-  const radius = Math.max(1, Math.round(amount*Math.min(w, h)/60));
-  let buf = new Uint8ClampedArray(data);
+  const radius = Math.max(1, Math.round(amount*Math.min(imageData.refW || w, imageData.refH || h)/60));
+  let buf = new data.constructor(data);
   for(let k=0;k<2;k++) buf = boxBlurSeparable(buf, w, h, radius);
   for(let i=0;i<data.length;i+=4){ data[i] = buf[i]; data[i+1] = buf[i+1]; data[i+2] = buf[i+2]; }
 }
@@ -11166,8 +11276,8 @@ function applySharpen(imageData, amount){
   if(amount < 0){ applySoften(imageData, -amount); return; }
   if(amount<=0) return;
   const w=imageData.width, h=imageData.height, data=imageData.data;
-  const src = new Uint8ClampedArray(data);
-  const radius = Math.max(1, Math.round(Math.min(w,h)/220)); // s'adapte à la résolution traitée
+  const src = new data.constructor(data);
+  const radius = Math.max(1, Math.round(Math.min(imageData.refW || w, imageData.refH || h)/220)); // s'adapte à la résolution traitée
   const blurred = boxBlurSeparable(src, w, h, radius);
   const strength = amount*2.2; // rendu clairement visible, tout en restant plafonné ci-dessous
   const maxDelta = 15 + amount*60;
@@ -11188,7 +11298,7 @@ function applySharpen(imageData, amount){
 function applyNoiseReduction(imageData, amount, detail){
   if(!(amount > 0)) return;
   const w=imageData.width, h=imageData.height, data=imageData.data;
-  const src = new Uint8ClampedArray(data);
+  const src = new data.constructor(data);
   const strength = amount/100;
   const radius = 2; // fenêtre 5x5
   const keep = 1 - 0.65 * Math.max(0, Math.min(100, detail || 0)) / 100;   // 0 = comportement d'origine
@@ -15211,7 +15321,7 @@ function drawHealOverlay(){
 (function setupPanelResizer(){
   const rz = el('#edit-panel-resizer'), body = el('.edit-modal-body');
   const KEY = 'lightcrabe-panel-width';
-  const clampW = v=> Math.max(300, Math.min(v, Math.min(900, window.innerWidth*0.6)));
+  const clampW = v=> Math.max(220, Math.min(v, Math.min(900, window.innerWidth*0.7)));
   try{ const saved = parseInt(localStorage.getItem(KEY), 10); if(saved) body.style.setProperty('--edit-panel-w', clampW(saved) + 'px'); }catch(e){}
   let drag = false;
   rz.addEventListener('pointerdown', e=>{ drag = true; rz.classList.add('dragging'); try{ rz.setPointerCapture(e.pointerId); }catch(err){} document.body.style.userSelect = 'none'; });
@@ -16233,6 +16343,7 @@ window.addEventListener('pagehide', flushEditDraft);
 window.addEventListener('beforeunload', flushEditDraft);
 
 async function openEditModal(id){
+  [0, 150, 600, 1500].forEach(t=> setTimeout(()=>{ try{ layoutIconBar(); }catch(_){} }, t));   // la barre du bas se recalcule une fois la mise en page stabilisée
   editPinId = (!filterActive() || (photos[id] && passesFilter(photos[id]))) ? id : null;
   if(typeof fxToolOff === 'function') fxToolOff();
   if(id && photos[id] && !(SEL.ids.has(id) && SEL.keepOnOpen)){ SEL.ids.clear(); SEL.ids.add(id); SEL.anchor = id; }   // une seule sélection : la photo affichée (les flèches la font suivre)
@@ -17300,6 +17411,19 @@ function refreshPhotoExportUi(){
   el('#pe-source-info').textContent = p.name + ' — source : ' + src.w + ' × ' + src.h + ' px (' + (src.w*src.h/1e6).toFixed(1) + ' Mpx)';
   el('#pe-out-info').textContent = 'Sortie : ' + out.w + ' × ' + out.h + ' px' + (out.resized ? ' (redimensionnée)' : ' (pleine résolution)');
   els('[data-pfmt]').forEach(b=> b.classList.toggle('active', b.dataset.pfmt === pxFormat));
+  (function(){   // source 8 bits (JPEG, PNG 8 bits…) : un export 16/32 bits n'ajoute aucune précision
+    const HI_FMT = ['png16', 'tiff16', 'tiff32', 'psd16', 'psdlayers16', 'psdstack16'];
+    const idsHi = (peBatchIds && peBatchIds.length) ? peBatchIds : [editTargetId];
+    const is8 = id=>{ const q = photos[id]; return !!(q && q.file) && !HI_DECODERS.some(d=>{ try{ return d.test(q.file); }catch(_){ return false; } }); };
+    const n8 = idsHi.filter(is8).length, all8 = n8 > 0 && n8 === idsHi.length;
+    els('[data-pfmt]').forEach(b=> b.classList.toggle('hi-fake', all8 && HI_FMT.includes(b.dataset.pfmt)));
+    const warn = el('#pe-hi-warn');
+    if(HI_FMT.includes(pxFormat) && n8 > 0){
+      warn.style.display = 'block';
+      warn.textContent = idsHi.length === 1 ? '⚠ La source de cette photo est en 8 bits (JPEG, PNG 8 bits…) : l’export ' + (pxFormat === 'tiff32' ? '32' : '16') + ' bits sera un « faux » 16 bits (valeurs étendues). Le fichier sera plus lourd, sans précision supplémentaire. Choisis plutôt un format 8 bits (JPEG, PNG, TIFF 8 bits) ; le 16 bits n’a d’intérêt que pour les TIFF 16/32 bits et les RAW.'
+        : '⚠ ' + n8 + ' photo' + (n8 > 1 ? 's' : '') + ' sur ' + idsHi.length + ' ont une source en 8 bits : pour elles, l’export 16 bits sera un « faux » 16 bits (plus lourd, sans précision supplémentaire). Seuls les TIFF 16/32 bits et les RAW profitent du vrai 16 bits.';
+    } else warn.style.display = 'none';
+  })();
   el('#pe-quality-wrap').style.display = pxFormat === 'jpeg' ? 'block' : 'none';
   const isJpegSrc = /^image\/jpeg$/i.test(p.file.type) || /\.jpe?g$/i.test(p.name);
   const retouched = !recipeIsNeutral(editRecipe) || !geoIsIdentity(editRecipe.geometry) || (p.useEdited && p.edited);
@@ -20885,11 +21009,14 @@ function lcLayoutMode(){
   } else if(ui === 'computer'){
     ['m-stack','m-phone','m-compact','m-touch','m-land-small'].forEach(c=> b.classList.remove(c));
   } else {
-    b.classList.toggle('m-stack', portrait && w <= 900);
-    b.classList.toggle('m-phone', Math.min(w, h) <= 560);
-    b.classList.toggle('m-land-small', !portrait && h <= 520);
-    b.classList.toggle('m-compact', (portrait && w <= 900) || (!portrait && h <= 520));
     let coarse = false; try{ coarse = window.matchMedia('(pointer: coarse)').matches; }catch(_){}
+    /* Sur ordinateur (souris), zoomer la page du navigateur réduit la fenêtre en pixels CSS : on n'y bascule pas dans la disposition « téléphone ».
+       Seuils plus bas qu'avec un écran tactile. */
+    const hLim = coarse ? 520 : 380, sLim = coarse ? 560 : 380, wLim = coarse ? 900 : 700;
+    b.classList.toggle('m-stack', portrait && w <= wLim);
+    b.classList.toggle('m-phone', Math.min(w, h) <= sLim);
+    b.classList.toggle('m-land-small', !portrait && h <= hLim);
+    b.classList.toggle('m-compact', (portrait && w <= wLim) || (!portrait && h <= hLim));
     b.classList.toggle('m-touch', coarse);
   }
   try{ syncTopbarH(); }catch(_){}
