@@ -42,7 +42,7 @@ Le rendu de la démosaïque maison est un peu moins contrasté/saturé que celui
 
 Onglets du panneau de droite : **Base** (exposition, contraste, hautes lumières, ombres, blancs, noirs, température, teinte, saturation, vibrance, noir et blanc), **Courbes**, **HSL**, **Étalonnage** (Grading), **Calibration**, **Détails**, **Objectif**, **Correction** (retouche locale), **Filtres**, **Presets / LUT** (dont presets Fuji), **Historique**.
 Outils : rognage (R), redressement, miroirs, masques (pinceau, radial, linéaire, baguette, ciel), copier/coller des réglages (menu clic droit), historique global (Ctrl+Z).
-Chaîne 16 bits : pour les exports en 16 bits, la retouche est appliquée avec une précision supérieure à 8 bits (cube de couleurs 65³ + détails calculés en 8 bits).
+Chaîne haute précision : à l'écran, l'aperçu est calculé en 8 bits par canal ; pour les exports en 16 bits (TIFF, PNG, PSD) ou en 32 bits flottant (TIFF), **toute** la retouche est recalculée en haute précision, sans repasser par 8 bits (voir §10).
 
 ### Notes (étoiles et couleurs) et filtre
 - Touches : **1 à 5** = étoiles, **6 à 9** = rouge, jaune, vert, bleu, **0** = effacer la note (sur la photo survolée).
@@ -101,6 +101,8 @@ Superpose les photos sélectionnées (opacité, modes de fusion) ; exportable en
 ## 10. Profondeur de couleur : 8, 16 et 32 bits
 - **8 bits** : JPEG, aperçus, la plupart des sorties. 256 niveaux par couche.
 - **16 bits** : TIFF, PNG et PSD 16 bits ; c'est la précision de travail pour les RAW (les capteurs font 12 à 14 bits, 16 bits suffit largement). Évite les « marches » dans les dégradés (ciel) et permet de pousser les ombres.
+- **Où la retouche est-elle en haute précision ?** L'**aperçu à l'écran** reste en 8 bits par canal (l'écran n'affiche pas plus). À l'**export 16 bits ou 32 bits flottant**, toute la retouche est recalculée en haute précision à partir d'une source 16/32 bits (TIFF 16/32 bits, RAW) : tons, couleurs, courbes, HSL, étalonnage et LUT (cube de couleurs 65³), puis, en flottant 32 bits, bruit, bruit de couleur, moiré, netteté (et flou), grain, vignettage, correcteur, flou/mosaïque et masques locaux. Seule exception : dans un **PSD à calques**, les masques locaux restent sur leur calque, en 8 bits.
+- **Source en 8 bits (JPEG, PNG 8 bits…)** : un export 16 bits n'ajoute aucune précision (valeurs étendues : fichier plus lourd, mêmes détails). La fenêtre d'export affiche un avertissement et grise les formats 16/32 bits quand toutes les photos exportées sont en 8 bits.
 - **32 bits flottant** : **existe dans LightCrab** (export TIFF 32 bits flottant ; lecture des TIFF 32 bits). Utile surtout pour garder des valeurs **au-delà du blanc** (HDR). Limite actuelle : les valeurs supérieures à 1,0 sont encore comprimées en douceur dans les hautes lumières, donc non « récupérables » avec l'exposition. Le HDR de LightCrab est aujourd'hui écrit en **JPEG 8 bits ou TIFF 16 bits** ; un TIFF 32 bits flottant « radiance » serait une évolution possible.
 
 ## 11. Questions fréquentes (pour l'assistant)
@@ -112,7 +114,7 @@ Superpose les photos sélectionnées (opacité, modes de fusion) ; exportable en
 - **Téléphone ?** L'interface actuelle est conçue pour ordinateur ; une version tactile verticale est prévue plus tard.
 
 ## 12. Licence
-Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits réservés** (pas de réutilisation ni de versions dérivées). LibRaw (décodage RAW) est embarqué sous ses propres licences (LGPL 2.1 / CDDL 1.0) — voir « À propos ».
+Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits réservés** (pas de réutilisation ni de versions dérivées). LibRaw (décodage RAW) est embarqué sous ses propres licences (LGPL 2.1 / CDDL 1.0) — voir « À propos ». Texte complet : [`LICENSE.md`](https://github.com/Adrian-Margolin/LightCrab/blob/main/LICENSE.md) ; sources et crédits détaillés : [`CREDITS.md`](https://github.com/Adrian-Margolin/LightCrab/blob/main/CREDITS.md) (dépôt : https://github.com/Adrian-Margolin/LightCrab).
 
 ## Mises à jour du 21 octobre 2026
 - **Anti-moiré (couleur)** : onglet Détails. Lisse la chrominance (pas la netteté). Corrige le moiré arc-en-ciel, pas le moiré de luminosité.
@@ -175,7 +177,7 @@ Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits ré
 - **Fusion de zones** : chaque photo garde ses **proportions** (une photo verticale n'est plus étirée dans un cadre horizontal, et inversement ; elle n'est pas alignée automatiquement, on la place avec ✋ Main). Rectangle, triangle, polygone, lasso et pipette **s'appliquent tout de suite** à la photo choisie (case décochable ; Maj = ajouter, Alt = retirer). **Ctrl+Z** annule aussi une sélection, et fonctionne avec un clavier cyrillique.
 - **Filtre Pipette (baguette)** : après avoir cliqué une couleur d'arrivée dans le carré, **Luminosité = 0 donne exactement cette couleur**. Les sections Color Grading et Calibration ne sont plus proposées pour la pipette.
 - **Options › Couleur de l'interface** : thèmes neutre, rose, vert, bleu, violet, orange (clair et sombre), mémorisés dans le navigateur.
-- **À propos** : liste complète des composants tiers (voir aussi `CREDITS.md`).
+- **À propos** : liste complète des composants tiers (voir aussi [`CREDITS.md`](https://github.com/Adrian-Margolin/LightCrab/blob/main/CREDITS.md)). Les noms `LICENSE.md` et `CREDITS.md` y sont des liens vers le dépôt GitHub.
 
 ## Mises à jour du 24 oct. 2026 (suite)
 - **Dialogues** : toutes les confirmations (« Supprimer ce masque ? »…) sont des fenêtres de LightCrab (Entrée = OK, Échap = Annuler), plus des boîtes du navigateur.
@@ -184,7 +186,7 @@ Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits ré
 - **Masques et objectif** : les masques, pinceaux et corrections suivent la photo quand on change l'objectif, le rognage ou la rotation.
 - **Objectif** : bouton « Télécharger depuis Lensfun » (une connexion, le profil est gardé dans le navigateur).
 - **Barre d'espace** = Main, même quand un curseur a le focus.
-- **Limites** : voir « À propos › Limites actuelles » pour la profondeur de couleur (8 bits à l'écran, chaîne 16 bits à l'export).
+- **Limites** : voir « À propos › Limites actuelles » pour la profondeur de couleur (aperçu 8 bits à l'écran, retouche complète en haute précision à l'export 16/32 bits).
 
 ## Mises à jour du 24 oct. 2026 (soir)
 - **Guide de première visite** : 7 petites cartes très courtes (« Ok, compris »), qui illuminent l'élément concerné ; se rejoue depuis Options › « Revoir le guide de démarrage ».
@@ -201,6 +203,45 @@ Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits ré
 
 **Flou gaussien et mosaïque.** Boutons 🌫 et ▦ dans la barre du bas de Retouche. Glissez sur la photo pour dessiner une zone (rond/ovale ou rectangle ; « proportions verrouillées » = cercle/carré), puis réglez Force, Contour progressif et (mosaïque) Bruit. Non destructif, appliqué aussi à l’export. Suppr = effacer la zone, clic droit = déplacer la photo.
 
-**Noyau flottant 32 bits.** L’export 16 bits évalue maintenant la chaîne de couleur (tons, courbes, HSL, étalonnage, LUT…) en Float32, sans arrondi à 8 bits.
+**Noyau flottant 32 bits.** L’export 16 bits évalue la chaîne de couleur (tons, courbes, HSL, étalonnage, LUT…) en Float32, sans arrondi à 8 bits. (Depuis le 28 oct. 2026, les effets spatiaux, le correcteur, le flou/mosaïque et les masques locaux le sont aussi : voir plus bas.)
 
 **Divers.** Netteté dans « Base » ; Ciel : douceur de transition et sensibilité jusqu’à 100 (déborde sur les branches fines) ; couleur du pinceau au choix ; clic droit dans l’historique (supprimer une étape / une branche / tout effacer) ; un défilement rapide de presets ne laisse qu’un pas d’historique.
+
+
+## Mises à jour du 26 au 29 oct. 2026
+
+**Publication sur GitHub Pages.** Le dépôt https://github.com/Adrian-Margolin/LightCrab sert la page https://adrian-margolin.github.io/LightCrab/. Le fichier de l'application doit s'appeler **`index.html`** et se trouver à la racine du dépôt (Add file ▸ Upload files ; les fichiers de plus de quelques Mo ne passent pas par l'éditeur web). `LightCrab.html` et `index.html` sont le même fichier.
+
+**Filtre.** La photo ouverte ne reste plus dans la bande si elle ne correspond pas au filtre : elle y reste seulement si elle correspondait quand on l'a ouverte (pour pouvoir changer sa note ou sa couleur). Un nouveau filtre s'applique tout de suite ; si aucune photo ne correspond, la bande est vide.
+
+**Fluidité.** Le rendu plein format (rotation, redressement, **correction d'objectif**) est mis en mémoire : les 4 photos suivantes et les 2 précédentes sont préparées en tâche de fond (JPEG, PNG, TIFF et RAW ; les RAW et le calcul d'objectif n'avancent que si l'on ne touche à rien). Options ▸ **Mémoire (RAM) pour le préchargement** : de 0 (désactivé) à 8000 Mo, défaut 600 Mo (repère : 2000–4000 Mo pour 16–32 Go de RAM). Le curseur règle ensemble le cache des rendus, celui des images décodées et celui des RAW.
+
+**Copier / coller les réglages.** Nouvelle catégorie **HSL couleur libre** et nouvelle catégorie **Objectif (correction)** (profil d'objectif, tout ou rien) ; libellés en français plus clairs (« Netteté, bruit, moiré », « Grain et vignettage », « LUT (look couleur) », « Preset ou LUT appliqué à la photo »). Boutons **Tout sélectionner / Tout désélectionner** dans les menus de copie et de collage. Le collage propose **« Remplacer ces réglages »** par défaut (au lieu d'« Ajouter »).
+
+**Correcteur elliptique.** Deux curseurs : *Forme* (hauteur / largeur, 1 = rond) et *Rotation de l'ellipse*.
+
+**Ctrl+Z / Ctrl+Y** annulent et rétablissent la suppression d'un preset et la suppression d'étapes de l'historique (étape, branche ou « Effacer tout »). Dès qu'on fait une autre retouche, Ctrl+Z reprend son comportement habituel.
+
+**Zoom conservé.** Ajouter un filtre ou une zone de masque ne remet plus l'image à 100 %/ajustée.
+
+**Histogramme.** Lignes rouge, verte et bleue lissées sur une aire grise de luminosité ; en déplaçant Hautes lumières, Ombres, Blancs ou Noirs, la zone concernée est surlignée avec son libellé (« Hautes lumières : +24 »).
+
+**Ciel.** Nouveau curseur **Dégradé** : effet plein en haut du ciel, s'estompant vers l'horizon.
+
+**Netteté.** Dans « Base », le curseur va de −100 à +100 (0 au milieu) : au-dessus de 0 = plus de netteté, en dessous = flou gaussien.
+
+**Barre du bas de Retouche.** Pivoter et Redresser sont réunis sous un seul bouton **↻ Rotation**. Flou, mosaïque et miroir (horizontal et vertical) sont dans le menu **⋯** (« Plus d'outils »), avec les autres outils qui n'ont pas la place ; il n'y a plus qu'un seul bouton de ce type. Le bouton d'export de Retouche est **📤**.
+
+**Zoom du navigateur et fenêtres étroites.** Zoomer la page (Ctrl +) ne bascule plus l'interface en disposition « téléphone » avec une souris (seuil abaissé à 380 px de hauteur ; l'écran tactile garde ses seuils). Le panneau de droite se redimensionne à nouveau (largeur minimale 220 px), les barres du haut et du bas restent sur une seule ligne et ne dépassent plus (libellés réduits à des icônes, onglets défilants).
+
+**Taille du fichier.** Affichée à côté de l'échelle et des dimensions (« 63 % · 1600 × 1100 px · 68 Ko ») et dans les infos EXIF. Clic droit sur une photo de la bande de Retouche : **Infos de la photo (EXIF)…**.
+
+**Export.** Une seule jauge : « Export : 3 / 12 · reste env. 1 min 20 s ». Avertissement et grisage des formats 16/32 bits quand la source est en 8 bits. En 16/32 bits, toute la retouche est en haute précision (voir §10).
+
+**Aperçus RAW (⚡).** Un second clic demande confirmation : « Arrêter » ou « Continuer la création » ; les aperçus déjà créés sont conservés. À l'ouverture de la session précédente, une grande fenêtre centrée indique la progression.
+
+**Guide.** À l'étape Import, les boutons Import et Retouche sont entourés ; à l'étape Export, la notice est placée plus haut et les boutons 📤 et ⋯ sont entourés.
+
+**Langue.** Le français est la langue par défaut ; English et Українська se choisissent dans la liste en haut à droite ou dans Options. Les nouveaux libellés sont traduits.
+
+**Pas encore fait.** Outil de suppression du flou de bougé (déconvolution) ; correcteur / flou / mosaïque / masques locaux d'un PSD à calques en haute précision.
