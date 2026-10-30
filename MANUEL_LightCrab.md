@@ -244,4 +244,12 @@ Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits ré
 
 **Langue.** Le français est la langue par défaut ; English et Українська se choisissent dans la liste en haut à droite ou dans Options. Les nouveaux libellés sont traduits.
 
+**Ctrl+A** sélectionne toutes les photos de la vue : la bande de Retouche, le bac et les pages de la Maquette, le bac du Diaporama et la liste de l'Export (en respectant le filtre actif). Dans un champ de texte, Ctrl+A garde son rôle habituel ; dans le Visionnage, il n'y a rien à sélectionner.
+
+**Visionnage.** La photo (et la barre de navigation) restent toujours dans la fenêtre, même petite ou zoomée par le navigateur (hors plein écran). **Molette** : zoom centré sur le pointeur (jusqu'à ×16) ; **glisser** pour déplacer l'image zoomée ; **un clic** sur l'image zoomée revient à la vue d'ensemble, un clic sur l'image non zoomée bascule en plein écran.
+
+**Rogner.** Le bouton ⇄ « Basculer portrait / paysage » est maintenant juste à côté de 16:9.
+
+**Copier l'image** (menu contextuel) : le presse-papier du navigateur n'accepte que le PNG ; un JPEG, un TIFF ou un RAW est donc converti en PNG à la pleine résolution avant la copie (avant, la copie d'un JPEG échouait).
+
 **Pas encore fait.** Outil de suppression du flou de bougé (déconvolution) ; correcteur / flou / mosaïque / masques locaux d'un PSD à calques en haute précision.
