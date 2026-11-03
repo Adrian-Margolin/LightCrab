@@ -46,7 +46,7 @@ Chaîne haute précision : à l'écran, l'aperçu est calculé en 8 bits par can
 
 ### Notes (étoiles et couleurs) et filtre
 - Touches : **1 à 5** = étoiles, **6 à 9** = rouge, jaune, vert, bleu, **0** = effacer la note (sur la photo survolée).
-- Bouton **⭐ Filtre** : fenêtre de filtrage par étoiles (nombre exact), couleurs, état (retouchées / non retouchées). Les photos qui ne correspondent pas sont masquées dans le bac à photo et dans la bande de Retouche, et grisées dans la maquette. La fenêtre reste ouverte tant qu'on ne clique pas ailleurs.
+- Bouton **🔍 Filtre** : fenêtre de filtrage par étoiles (nombre exact), couleurs, état (retouchées / non retouchées). Les photos qui ne correspondent pas sont masquées dans le bac à photo et dans la bande de Retouche, et grisées dans la maquette. La fenêtre reste ouverte tant qu'on ne clique pas ailleurs.
 - Le mot **Note** (à gauche des étoiles, en bas de Retouche) est aussi un **interrupteur** : actif (cadre bleu) = les étoiles et couleurs s'affichent en bas de la photo en plein écran, avec un contour épais pour rester lisibles ; le message flottant de changement de note est alors désactivé pour ne pas cacher la note.
 - Dans les menus clic droit des vignettes, les étoiles / couleurs restent ouvertes après un choix.
 
@@ -199,7 +199,7 @@ Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits ré
 
 ## Nouveautés (octobre 2026)
 
-**Tags (mots-clés).** Dans Retouche, bouton 🏷 Tags à côté de ⭐ Filtre : tapez un nom (virgule = plusieurs), Entrée pour l’ajouter ; cliquez un tag pour l’ajouter ou le retirer sur toutes les photos sélectionnées. ✕ supprime un tag, « Supprimer les tags non utilisés » nettoie ceux qui ne sont appliqués à aucune photo. Dans le filtre, tapez pour chercher un tag puis cliquez pour le choisir (« Sans tag » existe aussi ; case « tous les tags » pour un ET). Dans Export, case « Ajouter les tags… au nom du fichier », à côté du photographe : `IMG-6546 Adrian Margolin - Anna - Marc.jpg`.
+**Tags (mots-clés).** Dans Retouche, bouton 🏷 Tags à côté de 🔍 Filtre : tapez un nom (virgule = plusieurs), Entrée pour l’ajouter ; cliquez un tag pour l’ajouter ou le retirer sur toutes les photos sélectionnées. ✕ supprime un tag, « Supprimer les tags non utilisés » nettoie ceux qui ne sont appliqués à aucune photo. Dans le filtre, tapez pour chercher un tag puis cliquez pour le choisir (« Sans tag » existe aussi ; case « tous les tags » pour un ET). Dans Export, case « Ajouter les tags… au nom du fichier », à côté du photographe : `IMG-6546 Adrian Margolin - Anna - Marc.jpg`.
 
 **Flou gaussien et mosaïque.** Boutons 🌫 et ▦ dans la barre du bas de Retouche. Glissez sur la photo pour dessiner une zone (rond/ovale ou rectangle ; « proportions verrouillées » = cercle/carré), puis réglez Force, Contour progressif et (mosaïque) Bruit. Non destructif, appliqué aussi à l’export. Suppr = effacer la zone, clic droit = déplacer la photo.
 
