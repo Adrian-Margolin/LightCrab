@@ -20613,6 +20613,7 @@ function updateAutoPill(){
 const sleep = ms=> new Promise(r=> setTimeout(r, ms));
 /* Reconstruit tout (photos d'origine, versions retouchées, maquette, retouches) à partir d'un projet.
    getFile(id, meta) -> File d'origine ; getEdited(id, meta) -> File retouchée (ou null). Les identifiants sont conservés. */
+function blankThumbUrl(){ return new Promise(res=>{ const c = document.createElement('canvas'); c.width = 240; c.height = 160; const x = c.getContext('2d'); x.fillStyle = '#3a3a3a'; x.fillRect(0, 0, 240, 160); x.fillStyle = '#aaa'; x.font = '14px sans-serif'; x.textAlign = 'center'; x.fillText('Aperçu indisponible', 120, 84); c.toBlob(b=> res(URL.createObjectURL(b)), 'image/jpeg', 0.8); }); }
 async function restoreProject(data, getFile, getEdited){
   const st = data.structure, ids = Object.keys(st.photosMeta || {});
   LIB.restoring = true;
@@ -20621,7 +20622,7 @@ async function restoreProject(data, getFile, getEdited){
       [p.thumbUrl, p.fullUrl, p.edited && p.edited.thumbUrl, p.edited && p.edited.fullUrl].forEach(u=>{ if(u) try{ URL.revokeObjectURL(u); }catch(e){} });
     });
     photos = {}; stock = []; rows = []; photoOrder = []; history = []; redoStack = [];
-    let done = 0, missing = 0; const total = ids.length;
+    let done = 0, missing = 0, noThumb = 0, firstErr = ''; const total = ids.length;
     openOverlay(0, total);
     const BATCH = 4;
     for(let i = 0; i < ids.length; i += BATCH){
@@ -20630,9 +20631,10 @@ async function restoreProject(data, getFile, getEdited){
         try{
           const file = await getFile(id, m);
           if(!file){ missing++; return; }
-          const thumbUrl = await makeThumb(file);
+          let thumbUrl; try{ thumbUrl = await makeThumb(file); }
+          catch(te){ if(file.size > 1000){ thumbUrl = await blankThumbUrl(); noThumb++; if(!firstErr) firstErr = (te && te.message) || String(te); } else throw te; }   // miniature illisible : on garde quand même la photo
           photos[id] = { id, name:m.name, path:m.path || '', dirKey:m.dirKey || null, handle:null, dirHandle:null, file, thumbUrl, fullUrl:null, gpsOverride:m.gpsOverride || null, metaOverride:m.metaOverride || null, addedAt: m.addedAt != null ? m.addedAt : undefined, rating:m.rating || 0, label:m.label || null, labels:(Array.isArray(m.labels) ? m.labels.slice() : (m.label ? [m.label] : [])), tags:(Array.isArray(m.tags) ? m.tags.slice() : []) };
-        }catch(e){ missing++; console.warn('Photo non restaurée', m && m.name, e); }
+        }catch(e){ missing++; if(!firstErr) firstErr = (e && e.message) || String(e); console.warn('Photo non restaurée', m && m.name, e); }
         done++; openOverlay(done, total);
       }));
     }
@@ -20656,7 +20658,7 @@ async function restoreProject(data, getFile, getEdited){
     renderAll(); saveStructure();
     await applyProjectExtras(bake);
     openOverlay(total, total, true);
-    return { missing, total };
+    return { missing, total, noThumb, firstErr };
   } finally {
     closeOpenOverlay();
     LIB.restoring = false; LIB.dirty = true; LIB.ver++;        // la bibliothèque est mise à jour juste après (les photos déjà gardées ne sont pas réécrites)
@@ -20939,10 +20941,16 @@ async function restoreFromPortable(data){
     if(typeof url === 'object'){ const b = data.__src.slice(data.__base + url.off, data.__base + url.off + url.len); return new File([b], name, { type:type || 'image/jpeg', lastModified:lm || Date.now() }); }
     const b = await (await fetch(url)).blob(); return new File([b], name, { type:type || b.type, lastModified:lm || Date.now() }); };
   const pd = data.photosData || {};
+  let warn = '';
+  if(data.__src && data.__src.size != null){ let need = 0; Object.values(pd).forEach(v=>{ [v && v.orig, v && v.edited].forEach(r=>{ if(r && typeof r === 'object') need = Math.max(need, r.off + r.len); }); }); const have = data.__src.size - data.__base;
+    if(have < need) warn = ' ⚠ Fichier INCOMPLET : ' + Math.round(have/1048576) + ' Mo reçus sur ' + Math.round(need/1048576) + ' Mo attendus — le transfert a été interrompu, renvoie le fichier.'; }
   const res = await restoreProject(data,
     (id, m)=> pd[id] ? toFile(pd[id].orig, m.name, m.type, m.lastModified) : null,
     (id, m)=> pd[id] && pd[id].edited ? toFile(pd[id].edited, m.name, 'image/jpeg', Date.now()) : null);
-  toast(res.missing ? res.missing + ' photo(s) manquantes dans ce fichier.' : 'Projet ouvert : ' + res.total + ' photo' + (res.total > 1 ? 's' : '') + '.', !!res.missing);
+  let msg = res.missing ? res.missing + ' photo(s) manquantes dans ce fichier' + (res.firstErr ? ' (' + res.firstErr + ')' : '') + '.' : 'Projet ouvert : ' + res.total + ' photo' + (res.total > 1 ? 's' : '') + '.';
+  if(res.noThumb) msg += ' ' + res.noThumb + ' aperçu(s) illisible(s) dans ce navigateur (photos conservées).';
+  toast(msg + warn, !!(res.missing || warn || res.noThumb));
+  if(currentView !== 'atelier' && res.total - res.missing > 0) switchView('atelier');
   return true;
 }
 /* ----- ouverture / reprise d'un projet ----- */
