@@ -19525,6 +19525,15 @@ el('#mask-overlay-toggle').addEventListener('change', ()=>{ maskHlHidden = false
   const COLOR_UI = '#mask-adjust-sliders, #mc-sel-sliders, #mask-color-adjust, #mask-alpha-sliders';
   const hideOn = e=>{ const t = e.target; if(!t || !t.closest) return; if(t.closest('#mask-geo-controls')) setHl(false); else if(t.closest(COLOR_UI) || (t.closest('#edit-panel-masks') && /^(INPUT|SELECT)$/.test(t.tagName) && t.id !== 'mask-overlay-toggle' && t.id !== 'mask-view-mode')) setHl(true); };
   document.addEventListener('input', hideOn, true); document.addEventListener('change', hideOn, true);
+  /* La surbrillance revient quand on reclique sur l'onglet Filtres, ou dans une zone libre du panneau Filtres (hors curseurs et champs) */
+  const showAgain = e=>{ const t = e.target; if(!t || !t.closest) return;
+    const onTab = !!t.closest('.edit-tab-btn[data-tab="masks"]');
+    const free = !!t.closest('#edit-panel-masks') && !t.closest('input, select, textarea, summary, button, label, #mask-list, #mask-editor');
+    if(!onTab && !free) return;
+    setHl(false);
+    try{ if(activeMaskId) selectMask(null); else renderMaskOverlay(); }catch(_){}   // plus de filtre sélectionné : tous les filtres actifs réapparaissent
+  };
+  document.addEventListener('pointerdown', showAgain, true);
   document.addEventListener('pointerdown', e=>{ const t = e.target; if(!t || !t.closest) return; if(t.closest('#mc-sel-pick')) setHl(true); else if(t.closest('#edit-preview-wrap') || t.closest('#mask-geo-controls')) setHl(false); }, true);
 })();
 // Regroupe les rafraîchissements de la surbrillance : au plus un par image
