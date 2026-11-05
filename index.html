@@ -12048,6 +12048,18 @@ function wandContigMap(mask, smp){
   WCM_MEMO.set(S, { refId:R.id, lv, r:S.color.r, g:S.color.g, b:S.color.b, tol:mask.tolerance, cx:S.cx, cy:S.cy, map:out });
   return out;
 }
+/* Conversion Float32 -> 8 bits avec tramage triangulaire (±1 niveau). Un pixel resté exactement entier n'est pas touché,
+   donc une photo sans retouche ressort identique. Le bruit est le même sur R, V et B (pas de grain coloré). */
+function f32ToU8Dither(src, dst){
+  for(let i = 0, n = src.length, p = 0; i < n; i += 4, p++){
+    const r = src[i], g = src[i+1], b = src[i+2];
+    const fr = Math.abs(r - Math.round(r)) + Math.abs(g - Math.round(g)) + Math.abs(b - Math.round(b));
+    if(fr < 0.002){ dst[i] = r; dst[i+1] = g; dst[i+2] = b; dst[i+3] = src[i+3]; continue; }
+    let h = Math.imul(p + 1, 2654435761) >>> 0; h ^= h >>> 15; h = Math.imul(h, 2246822519) >>> 0; h ^= h >>> 13;
+    const dn = (h & 0xFFFF)/65536 - (h >>> 16)/65536;
+    dst[i] = r + dn; dst[i+1] = g + dn; dst[i+2] = b + dn; dst[i+3] = src[i+3];
+  }
+}
 function processImageDataWithRecipe(imageData, recipe, view){
   WAND_REF = (recipe.masks && recipe.masks.some(m=> m.enabled && m.type === 'wand')) ? { w:imageData.width, h:imageData.height, d:new Uint8ClampedArray(imageData.data) } : null;
   const histMasks = (recipe.masks || []).filter(m=> m.enabled && m.restore && m.type === 'brush' && m.points && m.points.length);
@@ -12064,6 +12076,14 @@ function processImageDataWithRecipe(imageData, recipe, view){
   applyNoiseReduction(imageData, recipe.noise, recipe.noiseDetail);
   applyChromaNoiseReduction(imageData, recipe.noiseColor);
   applyMoire(imageData, recipe.moire);
+  if(!fcCapture && imageData.width*imageData.height <= 12000000){
+    /* Chaîne par pixel calculée en FLOTTANT 32 bits (aucun arrondi entre deux étapes), puis une seule conversion en 8 bits avec tramage :
+       les dégradés (brouillard, ciel) ne forment plus de bandes, même avec des courbes raides. */
+    const f32 = new Float32Array(imageData.data);
+    processPointChainF32(f32, recipe);
+    f32ToU8Dither(f32, imageData.data);
+    if(recipe.bw) stretchContrastGray(imageData);
+  } else {
   applyToneAndWhiteBalance(imageData.data, recipe);
   const fc = recipe.freeColor, fcActive = !!(fc && fc.picked);
   let fcMask = null;
@@ -12089,6 +12109,7 @@ function processImageDataWithRecipe(imageData, recipe, view){
       data[i]=data[i+1]=data[i+2]=v;
     }
     stretchContrastGray(imageData);
+  }
   }
   applySharpen(imageData, recipe.sharpness/100);
   applyGrain(imageData, recipe.grain, recipe.grainSize, recipe.grainRough, recipe.grainColor);
@@ -18355,6 +18376,28 @@ el('#edit-crop-straighten').addEventListener('dblclick', e=>{
       const movesTop    = dir.includes('n');
       const movesBottom = dir.includes('s');
 
+      if(ratio){
+        /* Ratio imposé : le cadre garde STRICTEMENT ce ratio. Le coin (ou le côté) opposé reste fixe, et la taille est limitée pour rester dans l'image. */
+        const R = rStartRect, minW = Math.max(MIN_SIZE, MIN_SIZE*ratio), horiz = movesLeft || movesRight, vert = movesTop || movesBottom;
+        let nw, nh, nx, ny;
+        if(horiz && vert){
+          const ax = movesLeft ? R.x + R.w : R.x, ay = movesTop ? R.y + R.h : R.y, sxd = movesLeft ? -1 : 1, syd = movesTop ? -1 : 1;
+          const px = (movesLeft ? R.x : R.x + R.w) + dx, py = (movesTop ? R.y : R.y + R.h) + dy;
+          let w2 = Math.max((px - ax)*sxd, (py - ay)*syd*ratio);
+          const maxW = Math.min(sxd > 0 ? cw - ax : ax, (syd > 0 ? ch - ay : ay)*ratio);
+          w2 = Math.max(minW, Math.min(w2, maxW)); nw = w2; nh = w2/ratio; nx = sxd > 0 ? ax : ax - nw; ny = syd > 0 ? ay : ay - nh;
+        } else if(horiz){
+          const ax = movesLeft ? R.x + R.w : R.x, sxd = movesLeft ? -1 : 1, cyc = R.y + R.h/2, px = (movesLeft ? R.x : R.x + R.w) + dx;
+          let w2 = (px - ax)*sxd; const maxW = Math.min(sxd > 0 ? cw - ax : ax, 2*Math.min(cyc, ch - cyc)*ratio);
+          w2 = Math.max(minW, Math.min(w2, maxW)); nw = w2; nh = w2/ratio; nx = sxd > 0 ? ax : ax - nw; ny = cyc - nh/2;
+        } else {
+          const ay = movesTop ? R.y + R.h : R.y, syd = movesTop ? -1 : 1, cxc = R.x + R.w/2, py = (movesTop ? R.y : R.y + R.h) + dy;
+          let h2 = (py - ay)*syd; const maxH = Math.min(syd > 0 ? ch - ay : ay, 2*Math.min(cxc, cw - cxc)/ratio);
+          h2 = Math.max(minW/ratio, Math.min(h2, maxH)); nh = h2; nw = h2*ratio; ny = syd > 0 ? ay : ay - nh; nx = cxc - nw/2;
+        }
+        cropRect = { x:nx, y:ny, w:nw, h:nh }; applyCropRectStyle(); return;
+      }
+
       if(movesLeft){  x = rStartRect.x+dx; w = rStartRect.w-dx; }
       if(movesRight){ w = rStartRect.w+dx; }
       if(movesTop){   y = rStartRect.y+dy; h = rStartRect.h-dy; }
@@ -19793,8 +19836,9 @@ function historyStepInfo(h){
   const what = keys.slice(0,3).map(k=> HISTORY_KEY_NAMES[k] || k).join(', ') + (keys.length > 3 ? '…' : '');
   return { cat, what };
 }
-let historyView = 'list';
-try{ historyView = localStorage.getItem('lightcrabe-history-view') === 'nodes' ? 'nodes' : 'list'; }catch(e){}
+let historyView = 'nodes';
+historyView = 'nodes';   // vue Nodes par défaut
+try{ if(localStorage.getItem('lightcrabe-history-view') === 'list') historyView = 'list'; }catch(e){}
 function renderEditHistoryPanel(){
   const wrap = el('#history-list');
   if(!wrap) return;
