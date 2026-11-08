@@ -1890,7 +1890,7 @@ DSCF0383.JPG"></textarea>
 <input type="file" id="project-input" accept="application/json,.json,.lightcrab,application/octet-stream,text/html,.html,.htm,application/zip,.zip" style="display:none">
 
 <div id="flip-stub" hidden><span id="flip-wrap"><button id="edit-flip-btn" type="button" tabindex="-1"></button><span id="flip-menu"></span></span></div>
-<div id="edit-more-menu"><button id="edit-blur-btn" class="ib" data-fixed="1" data-ord="901" data-tip="Flou gaussien : zone ronde, ovale ou rectangulaire">🌫</button><button id="edit-mosaic-btn" class="ib" data-fixed="1" data-ord="902" data-tip="Mosaïque : cacher un visage (zone ovale ou rectangulaire)">▦</button><button id="edit-flip-h-btn" class="ib" data-fixed="1" data-ord="903" data-tip="Miroir horizontal">⇋</button><button id="edit-flip-v-btn" class="ib" data-fixed="1" data-ord="904" data-tip="Miroir vertical">⇵</button></div>
+<div id="edit-more-menu"><button id="edit-blur-btn" class="ib" data-fixed="1" data-ord="901" data-tip="Flou gaussien : zone ronde, ovale ou rectangulaire">🌫</button><button id="edit-mosaic-btn" class="ib" data-fixed="1" data-ord="902" data-tip="Mosaïque : cacher un visage (zone ovale ou rectangulaire)">▦</button><button id="edit-flip-h-btn" class="ib" data-fixed="1" data-ord="903" data-tip="Miroir horizontal">⇋</button><button id="edit-flip-v-btn" class="ib" data-fixed="1" data-ord="904" data-tip="Miroir vertical">⇵</button><button id="edit-keepzoom-btn" class="ib" data-fixed="1" data-ord="906" data-tip="Garder le zoom en passant d'une photo à l'autre" style="width:auto;padding:0 10px;">🔎 Garder le zoom</button></div>
 <div id="zm-modal">
   <div id="zm-main"><div id="zm-stage"><canvas id="zm-canvas"></canvas><canvas id="zm-over"></canvas></div><div id="zm-status"></div><div id="zm-cursor"></div></div>
   <div id="zm-side">
@@ -11170,14 +11170,14 @@ els('.pl-switch button').forEach(b=> b.addEventListener('click', ()=> plSwitch(b
    flèches gauche/droite ou haut/bas pour défiler les presets rapidement. */
 document.addEventListener('keydown', e=>{
   if(!presetGridOpen) return;
-  if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
+  if(!['ArrowUp','ArrowDown'].includes(e.key)) return;   // gauche/droite : jamais les presets (ils font défiler les photos)
   if(document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
   e.preventDefault();
   const list = loadPresets();
   if(!presetGridFlatOrder.length) return;
   let pos = presetGridFlatOrder.indexOf(selectedPresetIdx);
   if(pos < 0) pos = 0;
-  const dir = (e.key==='ArrowRight' || e.key==='ArrowDown') ? 1 : -1;
+  const dir = (e.key==='ArrowDown') ? 1 : -1;
   pos = (pos + dir + presetGridFlatOrder.length) % presetGridFlatOrder.length;
   applyPresetByIdx(presetGridFlatOrder[pos], list);
   const activeEl = el('#preset-grid-body').querySelector('.preset-grid-item.active');
@@ -13469,17 +13469,34 @@ el('#edit-filmstrip-wrap').addEventListener('wheel', e=>{
   const fs = el('#edit-filmstrip'); if(!fs || fs.scrollWidth <= fs.clientWidth + 2) return;
   e.preventDefault(); e.stopPropagation(); fs.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
 }, { passive:false });
+let editNavPending = 0;
 document.addEventListener('keydown', async e=>{
   if((e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
-  if(el('#edit-modal').style.display !== 'flex' || presetGridOpen || overlayOpen() || editNavBusy || !editTargetId) return;
+  if(el('#edit-modal').style.display !== 'flex' || overlayOpen() || !editTargetId) return;   // quel que soit l'onglet ouvert (Presets compris)
   const t = document.activeElement;
-  if(t && ((/INPUT|TEXTAREA|SELECT/.test(t.tagName) && t.type !== 'range' && t.type !== 'checkbox') || t.isContentEditable)) return;
-  const ids = getOrderedPhotoIds().filter(id=> stripShows(id));
-  const j = ids.indexOf(editTargetId) + (e.key === 'ArrowRight' ? 1 : -1);
+  if(t && ((/INPUT|TEXTAREA|SELECT/.test(t.tagName) && t.type !== 'range' && t.type !== 'checkbox' && t.type !== 'radio') || t.isContentEditable)) return;
   e.preventDefault();
-  if(j < 0 || j >= ids.length){ rlFlash('<small>' + (j < 0 ? 'Première photo' : 'Dernière photo') + '</small>'); return; }
-  editNavBusy = true; try{ await openEditModal(ids[j]); } finally{ editNavBusy = false; }
+  const dir = e.key === 'ArrowRight' ? 1 : -1;
+  if(editNavBusy){ editNavPending += dir; return; }   // touche maintenue : on cumule et on saute directement à la photo visée (sans charger celles du milieu)
+  editNavBusy = true;
+  try{
+    let step = dir;
+    while(step){
+      const ids = getOrderedPhotoIds().filter(id=> stripShows(id));
+      let j = ids.indexOf(editTargetId) + step;
+      if(j < 0 || j >= ids.length){ rlFlash('<small>' + (j < 0 ? 'Première photo' : 'Dernière photo') + '</small>'); j = Math.max(0, Math.min(ids.length - 1, j)); if(!ids.length || ids[j] === editTargetId) break; }
+      await openEditModal(ids[j]);
+      step = editNavPending; editNavPending = 0;
+    }
+  } finally { editNavBusy = false; editNavPending = 0; }
 });
+function keepZoomOn(){ try{ return localStorage.getItem('lightcrab-keep-zoom') === '1'; }catch(_){ return false; } }
+(function(){
+  const b = el('#edit-keepzoom-btn'); if(!b) return;
+  const sync = ()=>{ const on = keepZoomOn(); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.style.outline = on ? '2px solid #4c8dff' : ''; b.style.background = on ? 'rgba(76,141,255,.18)' : ''; b.textContent = (on ? '✓ ' : '') + '🔎 Garder le zoom'; };
+  b.addEventListener('click', e=>{ e.stopPropagation(); try{ localStorage.setItem('lightcrab-keep-zoom', keepZoomOn() ? '0' : '1'); }catch(_){} sync(); toast(keepZoomOn() ? 'Le zoom est conservé d’une photo à l’autre.' : 'Le zoom revient à « photo entière » à chaque photo.'); });
+  sync();
+})();
 document.addEventListener('pointerup', ()=>{ const t = document.activeElement; if(t && t.type === 'range' && t.closest('#edit-modal')) t.blur(); });
 
 /* ---------- Suppr : retirer de LightCrab (annulable) · Alt+Suppr : supprimer aussi du disque dur ---------- */
@@ -14156,6 +14173,29 @@ document.addEventListener('keydown', e=>{
 /* ----- Comparaison de 2 à 4 photos : zoom et déplacement synchronisés ----- */
 let cmpZ = 1, cmpX = 0, cmpY = 0;
 function cmpApply(){ document.querySelectorAll('#cmp-grid img').forEach(im=>{ im.style.transform = 'translate(' + cmpX + 'px,' + cmpY + 'px) scale(' + cmpZ + ')'; }); }
+/* Comparaison : chaque photo est montrée AVEC ses retouches (réglages, filtres, rognage), calculées à part sans toucher à l'éditeur. */
+const cmpEditedCache = new Map();
+async function cmpEditedUrl(id){
+  const p = photos[id]; if(!p || !p.file) return null;
+  if(p.useEdited && p.edited) return null;   // déjà un fichier retouché exporté : cmpSrc l'utilise
+  const rec = recipeOfPhoto(id); if(!rec || recipeIsNeutral(rec)) return null;
+  if(id === editTargetId && el('#edit-modal').style.display === 'flex' && editZoom === 1 && beforeAfterMode === 'off' && !showOriginalTemp) return null;   // la photo ouverte : l'aperçu de l'éditeur fait foi
+  const key = id + '|' + stableJson(rec); if(cmpEditedCache.has(key)) return cmpEditedCache.get(key);
+  let src = null;
+  if(id === editTargetId && editRawImg) src = editRawImg;
+  else if(isRawFile(p.file)){ const f = rafCachedFull(p.file); src = f ? f.canvas : (await decodeTiff(p.file)).canvas; }
+  else if(isTiffFile(p.file)) src = (await decodeTiff(p.file)).canvas;
+  else { src = lcImgCacheGet(p.file); if(!src){ src = await new Promise((res, rej)=>{ const u = URL.createObjectURL(p.file), im = new Image(); im.onload = ()=>{ URL.revokeObjectURL(u); lcImgCachePut(p.file, im); res(im); }; im.onerror = ()=>{ URL.revokeObjectURL(u); rej(new Error('image illisible')); }; im.src = u; }); } }
+  if(!src) return null;
+  if(src.naturalWidth === undefined){ try{ Object.defineProperty(src, 'naturalWidth', { value:src.width }); Object.defineProperty(src, 'naturalHeight', { value:src.height }); }catch(_){} }
+  const w0 = src.naturalWidth || src.width, h0 = src.naturalHeight || src.height, k = Math.min(1, 2000/Math.max(w0, h0));
+  const base = renderGeometryCanvas(normalizeGeometry(rec.geometry), k, src);
+  const ctx = base.getContext('2d', { willReadFrequently:true }), d = ctx.getImageData(0, 0, base.width, base.height);
+  processImageDataWithRecipe(d, rec); ctx.putImageData(d, 0, 0);
+  const url = await new Promise(res=> base.toBlob(b=> res(b ? URL.createObjectURL(b) : null), 'image/jpeg', 0.92));
+  if(url) cmpEditedCache.set(key, url);
+  return url;
+}
 function cmpSrc(id){
   const p = photos[id];
   if(id === editTargetId && el('#edit-modal').style.display === 'flex' && editZoom === 1 && beforeAfterMode === 'off' && !showOriginalTemp){
@@ -14190,6 +14230,7 @@ function cmpBuild(){
   cmpIds.forEach(id=>{
     const p = photos[id], pane = document.createElement('div'); pane.className = 'cmp-pane';
     const im = document.createElement('img'); im.src = cmpSrc(id); im.draggable = false;
+    cmpEditedUrl(id).then(u=>{ if(u && im.isConnected) im.src = u; }).catch(e=> console.warn('Comparaison : rendu retouché impossible', e));
     const lb = document.createElement('span'); lb.className = 'cmp-label'; lb.textContent = (p.name || '') + (p.rating ? '  ' + '★'.repeat(p.rating) : '');
     const ed = document.createElement('button'); ed.className = 'cmp-edit'; ed.textContent = '🎛️ Ouvrir dans Retouche';
     const dl = document.createElement('button'); dl.className = 'cmp-del'; dl.textContent = '✕'; dl.title = 'Retirer de la comparaison';
@@ -14223,7 +14264,7 @@ function openCompare(){
   cmpIds = ids.slice(); cmpZ = 1; cmpX = 0; cmpY = 0; cmpBuild();
   el('#compare-modal').style.display = 'flex';
 }
-function closeCompare(){ cmpRemoved = []; el('#compare-modal').style.display = 'none'; el('#cmp-grid').innerHTML = ''; el('#cmp-picker').style.display = 'none'; cmpIds = []; }
+function closeCompare(){ cmpEditedCache.forEach(u=>{ try{ URL.revokeObjectURL(u); }catch(_){} }); cmpEditedCache.clear(); cmpRemoved = []; el('#compare-modal').style.display = 'none'; el('#cmp-grid').innerHTML = ''; el('#cmp-picker').style.display = 'none'; cmpIds = []; }
 function cmpTogglePicker(){
   const pk = el('#cmp-picker');
   if(pk.style.display === 'flex'){ pk.style.display = 'none'; return; }
@@ -16656,6 +16697,7 @@ async function openEditModal(id){
   if(el('#edit-modal').style.display === 'flex') queueBakeOfCurrent();
   flushEditDraft();   // garde l'état de la photo précédente avant de passer à une autre
   const p = id ? photos[id] : null;
+  const keepZ = (keepZoomOn() && el('#edit-modal').style.display === 'flex' && editZoom > 1 && (id || null) !== editTargetId) ? { z:editZoom, x:editPanX, y:editPanY } : null;
   if((id || null) !== editTargetId){ maskOverlaySuspended = true; maskPicked.clear(); maskMultiMode = false; }   // autre photo : on coupe la surbrillance des masques
   editTargetId = id || null;
   if(typeof maskLayerCleanup === 'function'){ maskLayerCleanup(); maskLayerCleanup = null; }
@@ -16663,7 +16705,7 @@ async function openEditModal(id){
   clearEditSource();
   editRecipe = neutralRecipe();
   editRecipeAppliedPreset = null;
-  editZoom = 1; editPanX = 0.5; editPanY = 0.5;
+  if(keepZ){ editZoom = keepZ.z; editPanX = keepZ.x; editPanY = keepZ.y; } else { editZoom = 1; editPanX = 0.5; editPanY = 0.5; }
   resetEditHistory();
   const draft = p ? (p.editDraft || draftMemory[draftKeyOf(p)] || null) : null;
   if(p && draft && draft.recipe){
@@ -16782,6 +16824,9 @@ function editPrefetchNeighbors(id){
       if(editTargetId !== id || el('#edit-modal').style.display !== 'flex') return;
       const ids = getOrderedPhotoIds().filter(x=> (photos[x] && (!filterActive() || passesFilter(photos[x]) || (x === id && x === editPinId))));
       const j = ids.indexOf(id); if(j < 0) return;
+      for(const nid of [ids[j+1], ids[j-1], ids[j+2], ids[j-2], ids[j+3]]){   // aperçus RAW rapides des voisines d'abord : les flèches deviennent quasi instantanées
+        const f0 = nid && photos[nid] && photos[nid].file; if(f0 && isRawFile(f0)){ await rawPrevGet(f0).catch(()=>{}); if(editTargetId !== id) return; }
+      }
       for(const nid of [ids[j+1], ids[j-1], ids[j+2], ids[j+3], ids[j-2], ids[j+4]]){
         if(!nid || editTargetId !== id) return;
         const f = photos[nid] && photos[nid].file; if(!f) continue;
@@ -16801,7 +16846,7 @@ function editPrefetchNeighbors(id){
         await new Promise(r=> setTimeout(r, 80));
       }
     }catch(e){ console.warn('Préchargement', e); }
-  }, 350);
+  }, 120);
 }
 el('#edit-empty-add-btn').addEventListener('click', ()=> el('#edit-filmstrip-input').click());
 

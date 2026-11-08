@@ -272,3 +272,9 @@ Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits ré
 - **Noir et blanc des presets calibrés** : l'étirement automatique du contraste est désactivé (`bwStretch`), pour que le rendu ne dépende plus de la scène. Les autres photos en noir et blanc gardent l'étirement.
 - **Sépia** : le virage est appliqué après le passage en noir et blanc, par trois courbes rouge / vert / bleu (`bwTone`), ce qui n'était pas possible auparavant.
 
+## Retouche : zoom conservé, flèches, comparaison
+
+- **Garder le zoom** (menu ⋯ « plus d'outils ») : quand l'option est cochée, le zoom et la position sont conservés en passant d'une photo à la suivante.
+- **Flèches du clavier** : gauche et droite font toujours défiler les photos, quel que soit l'onglet ouvert (Presets compris). Haut et bas font défiler les presets quand la grille est ouverte. Si on maintient la touche, LightCrab saute directement à la photo visée sans charger celles du milieu.
+- **Comparaison de 2 à 4 photos** : chaque photo est maintenant montrée avec ses retouches (réglages, filtres, rognage). L'original s'affiche d'abord, puis la version retouchée le remplace en quelques instants (plus longtemps pour un RAW pas encore décodé).
+
