@@ -263,3 +263,12 @@ Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits ré
 **Filtres plus fluides.** La zone d'un filtre (forme, baguette, ciel) est mise en mémoire : glisser un curseur de réglage ne la recalcule plus. Sur une photo de 3000 × 2000 avec une baguette, un déplacement de curseur passe d'environ 220 ms à environ 85 ms.
 
 **Pas encore fait.** Outil de suppression du flou de bougé (déconvolution) ; correcteur / flou / mosaïque / masques locaux d'un PSD à calques en haute précision.
+
+## Presets Fuji recalibrés (nov. 2026)
+
+- **Neuf presets de base « Fuji … (calibré) »** : Provia, Velvia, Astia, Classic Chrome, Eterna, Acros, Acros + filtre vert, Monochrome et Sépia. Ils ont été mesurés contre le JPEG de l'appareil (Fujifilm X-T30, réglages par défaut) : écart de couleur ΔE2000 médian d'environ 1 à 4 selon la simulation.
+- **Les recettes communautaires** dont la simulation est l'une de ces neuf (102 sur 161) reposent désormais sur ce look de base recalibré ; leurs réglages propres (tons, couleur, plage dynamique, balance des blancs) sont ajoutés par-dessus. Les recettes en Pro Neg Std / Hi, Classic Neg, Acros rouge/jaune et noir et blanc à filtre n'ont pas encore de base mesurée : elles restent inchangées (le tag Acros jaune, qui n'était pas noir et blanc, est corrigé).
+- **Mise à niveau automatique, une seule fois** : au premier lancement avec cette version, les presets intégrés (même nom) sont remplacés par les nouveaux ; tes propres presets ne sont jamais touchés.
+- **Noir et blanc des presets calibrés** : l'étirement automatique du contraste est désactivé (`bwStretch`), pour que le rendu ne dépende plus de la scène. Les autres photos en noir et blanc gardent l'étirement.
+- **Sépia** : le virage est appliqué après le passage en noir et blanc, par trois courbes rouge / vert / bleu (`bwTone`), ce qui n'était pas possible auparavant.
+

@@ -6,7 +6,7 @@ LightCrab est un fichier HTML unique. Les composants ci-dessous y sont intégré
 |---|---|---|---|
 | **LibRaw** (compilé en WebAssembly) + enveloppe **libraw-wasm** | Lecture des fichiers RAW | LGPL 2.1 ou CDDL 1.0 ; enveloppe ISC | https://www.libraw.org · https://github.com/LibRaw/LibRaw |
 | **Lensfun** (base de profils d'objectifs) | Distorsion et aberration chromatique des objectifs Fujifilm X | CC BY-SA 3.0 | https://lensfun.github.io |
-| **Presets Fuji communautaires** (161, convertis de façon approximative par LightCrab) | Presets intégrés | CC BY-NC 4.0 (usage non commercial) | ThomasHMD, dépôt `fuji-xrfc-preset-generator` : https://github.com/ThomasHMD/fuji-xrfc-preset-generator ; créateurs d'origine : Blaise Pauly, FujiXWeekly, Team Fuji et contributeurs |
+| **Presets Fuji communautaires** (161 recettes de ThomasHMD / FujiXWeekly ; réglages convertis par LightCrab sur des looks de base recalibrés) | Presets intégrés | CC BY-NC 4.0 (usage non commercial) | ThomasHMD, dépôt `fuji-xrfc-preset-generator` : https://github.com/ThomasHMD/fuji-xrfc-preset-generator ; créateurs d'origine : Blaise Pauly, FujiXWeekly, Team Fuji et contributeurs |
 | **pako** 2.2.0 | Décompression | MIT et Zlib | © Vitaly Puzrin, Andrei Tuputcyn ; zlib © Jean-loup Gailly, Mark Adler — https://github.com/nodeca/pako |
 | **UTIF.js** 3.1.0 | Lecture des TIFF (embarque un décodeur JPEG de type pdf.js, Apache 2.0) | MIT | © Photopea — https://github.com/photopea/UTIF.js |
 | **mp4-muxer** 5.2.2 | Écriture des MP4 du Diaporama | MIT | © Vanilagy — https://github.com/Vanilagy/mp4-muxer |
