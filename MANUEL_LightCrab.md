@@ -278,3 +278,12 @@ Usage libre et gratuit, **vente interdite**, code lisible mais **tous droits ré
 - **Flèches du clavier** : gauche et droite font toujours défiler les photos, quel que soit l'onglet ouvert (Presets compris). Haut et bas font défiler les presets quand la grille est ouverte. Si on maintient la touche, LightCrab saute directement à la photo visée sans charger celles du milieu.
 - **Comparaison de 2 à 4 photos** : chaque photo est maintenant montrée avec ses retouches (réglages, filtres, rognage). L'original s'affiche d'abord, puis la version retouchée le remplace en quelques instants (plus longtemps pour un RAW pas encore décodé).
 
+## Neutraliser le look du boîtier (JPEG Fuji)
+
+Un JPEG Fuji porte déjà le look de la simulation choisie dans le boîtier. Appliquer un preset par-dessus empile donc deux looks.
+
+- **Détection automatique** : LightCrab lit la simulation dans l'EXIF du JPEG (Provia, Velvia, Astia, Classic Chrome, Eterna, Pro Neg. Std / Hi).
+- **Une seule fois, avant le premier preset** : au moment où tu appliques un preset à une photo, le look du boîtier est défait en première étape ; les presets suivants s'appliquent sur cette même base, sans refaire le calcul. Si tu retires le preset, la photo retrouve son look d'origine.
+- **Case « 🪄 Neutraliser le look du boîtier »** dans l'onglet Presets (visible pour les JPEG Fuji concernés) : décocher pour annuler, cocher pour neutraliser sans preset. « Voir plus » explique le principe et les limites.
+- **Limites** : approximation (écart de couleur d'environ 2 à 3, à peine visible côte à côte) ; les hautes lumières brûlées et les ombres bouchées ne reviennent pas ; réglages de tons ou de plage dynamique décalés dans le boîtier = moins précis ; noir et blanc (Acros, Monochrome, Sépia) impossible, la couleur n'existant plus. Ne concerne que les JPEG Fuji, pas les RAW ni les autres marques.
+
